@@ -1,0 +1,40 @@
+import java.util.*;
+
+class TicketBookingSystem {
+    private final int seats = 10;
+    private final boolean[] bookedSeats = new boolean[seats];
+
+    synchronized boolean bookSeat(int seat) {
+        if (seat < 0 || seat >= seats || bookedSeats[seat]) return false;
+        bookedSeats[seat] = true;
+        return true;
+    }
+}
+
+class BookingThread extends Thread {
+    private TicketBookingSystem system;
+    private int seat;
+
+    BookingThread(TicketBookingSystem system, int seat, int priority) {
+        this.system = system;
+        this.seat = seat;
+        setPriority(priority);
+    }
+
+    public void run() {
+        if (system.bookSeat(seat)) {
+            System.out.println(getName() + " booked seat " + seat);
+        } else {
+            System.out.println(getName() + " failed to book seat " + seat);
+        }
+    }
+}
+
+public class TicketBooking {
+    public static void main(String[] args) {
+        TicketBookingSystem system = new TicketBookingSystem();
+        for (int i = 0; i < 15; i++) {
+            new BookingThread(system, i % 10, i < 3 ? Thread.MAX_PRIORITY : Thread.MIN_PRIORITY).start();
+        }
+    }
+}
